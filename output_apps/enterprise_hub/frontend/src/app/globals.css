@@ -1,0 +1,501 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-confidence: var(--confidence);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  /* طراحی شیشه‌ای (W21b): رنگ سطح، لبه و ارتفاع‌ها */
+  --color-glass-surface: var(--glass-surface);
+  --color-glass-raised: var(--glass-raised);
+  --color-glass-overlay: var(--glass-overlay);
+  --color-glass-border: var(--glass-border);
+  --shadow-glass-surface: var(--glass-shadow-surface);
+  --shadow-glass-raised: var(--glass-shadow-raised);
+  --shadow-glass-overlay: var(--glass-shadow-overlay);
+}
+
+:root {
+  /* فونت فارسی Vazirmatn (next/font، layout.tsx) با بازگشت به پشته سیستمی فارسی/لاتین */
+  --font-sans: var(--font-vazirmatn), ui-sans-serif, system-ui, "Segoe UI", Tahoma, sans-serif;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* سیستم طراحی شیشه‌ای (W21b): سه ارتفاع — surface / raised / overlay.
+     سطح شفاف + سایه نرم؛ مقدار blur/saturate داخل utility اعمال می‌شود. */
+  --glass-surface: oklch(1 0 0 / 62%);
+  --glass-raised: oklch(1 0 0 / 74%);
+  --glass-overlay: oklch(1 0 0 / 88%);
+  --glass-border: oklch(0 0 0 / 10%);
+  --glass-solid: oklch(0.99 0 0);
+  --glass-shadow-surface: 0 1px 2px oklch(0 0 0 / 6%), 0 8px 24px oklch(0 0 0 / 6%);
+  --glass-shadow-raised: 0 2px 4px oklch(0 0 0 / 8%), 0 12px 32px oklch(0 0 0 / 10%);
+  --glass-shadow-overlay: 0 8px 16px oklch(0 0 0 / 12%), 0 24px 56px oklch(0 0 0 / 18%);
+  --glass-app-bg: radial-gradient(1200px 800px at 100% -10%, oklch(0.92 0.03 250 / 70%), transparent 60%),
+    radial-gradient(900px 700px at 0% 0%, oklch(0.94 0.03 120 / 60%), transparent 55%),
+    linear-gradient(180deg, oklch(0.99 0 0), oklch(0.96 0.005 260));
+  --success: oklch(0.45 0.13 150);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.45 0.12 80);
+  --warning-foreground: oklch(0.99 0 0);
+  --info: oklch(0.45 0.13 250);
+  --info-foreground: oklch(0.99 0 0);
+  --confidence: oklch(0.45 0.1 190);
+  --confidence-foreground: oklch(0.99 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  /* سیستم طراحی شیشه‌ای (W21b): مقادیر تم تاریک پوسته اپ */
+  --glass-surface: oklch(1 0 0 / 6%);
+  --glass-raised: oklch(1 0 0 / 10%);
+  --glass-overlay: oklch(1 0 0 / 16%);
+  --glass-border: oklch(1 0 0 / 12%);
+  --glass-solid: oklch(0.2 0.015 260);
+  --glass-shadow-surface: 0 1px 2px oklch(0 0 0 / 40%), 0 8px 24px oklch(0 0 0 / 30%);
+  --glass-shadow-raised: 0 2px 6px oklch(0 0 0 / 45%), 0 14px 36px oklch(0 0 0 / 38%);
+  --glass-shadow-overlay: 0 8px 18px oklch(0 0 0 / 50%), 0 28px 64px oklch(0 0 0 / 45%);
+  --glass-app-bg: radial-gradient(1100px 700px at 100% -10%, oklch(0.34 0.07 255 / 55%), transparent 60%),
+    radial-gradient(900px 650px at 0% 5%, oklch(0.32 0.06 285 / 45%), transparent 55%),
+    radial-gradient(1000px 900px at 50% 115%, oklch(0.28 0.05 205 / 45%), transparent 60%),
+    linear-gradient(180deg, oklch(0.17 0.02 260), oklch(0.12 0.015 260));
+  --success: oklch(0.45 0.13 150);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.45 0.12 80);
+  --warning-foreground: oklch(0.99 0 0);
+  --info: oklch(0.45 0.13 250);
+  --info-foreground: oklch(0.99 0 0);
+  --confidence: oklch(0.45 0.1 190);
+  --confidence-foreground: oklch(0.99 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+
+  /* سطوح پیش‌فرض مرورگر (انتخاب متن، اسکرول‌بار) هم از پالت تم پیروی کنند */
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+  * {
+    scrollbar-color: var(--border) transparent;
+  }
+}
+
+@layer utilities {
+  /* نوارهای اسکرول افقی (منوی موبایل، دکمه‌های اقدام سریع): بدون اسکرول‌بار
+     ولی با محو تدریجی لبه‌ها تا قابل‌اسکرول بودن محتوای بریده‌شده مشخص باشد */
+  .scroll-fade-x {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 16px,
+      black calc(100% - 16px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 16px,
+      black calc(100% - 16px),
+      transparent 100%
+    );
+  }
+
+  /* پس‌زمینه لایه‌ای گرادیانی پوسته اپ (W21b) */
+  .glass-app-bg {
+    background-color: var(--background);
+    background-image: var(--glass-app-bg);
+  }
+
+  /* سطوح شیشه‌ای (W21b): پرکننده نیمه‌شفاف + blur(16px) saturate(140%)
+     + لبه ۱ پیکسلی روشن + سایه نرم. سه ارتفاع سطح/برجسته/روکش. */
+  .glass-surface {
+    background-color: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow-surface);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  .glass-raised {
+    background-color: var(--glass-raised);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow-raised);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  .glass-overlay {
+    background-color: var(--glass-overlay);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow-overlay);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+}
+
+/* اگر backdrop-filter پشتیبانی نشود، سطح شیشه‌ای به رنگ توپر برمی‌گردد
+   تا متن فارسی همچنان واجد کنتراست AA بماند. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-surface,
+  .glass-raised,
+  .glass-overlay {
+    background-color: var(--glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* احترام به کاهش شفافیت: حذف blur و استفاده از سطح توپر */
+@media (prefers-reduced-transparency: reduce) {
+  .glass-surface,
+  .glass-raised,
+  .glass-overlay {
+    background-color: var(--glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* احترام به کاهش حرکت */
+@media (prefers-reduced-motion: reduce) {
+  .glass-surface,
+  .glass-raised,
+  .glass-overlay {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Apple-style design tokens (/draft-ruling). Defined once here: edit   */
+/* these variables to restyle every surface that uses `ap-*` classes.   */
+/* ------------------------------------------------------------------ */
+.ap-theme {
+  --ap-bg: #000000;
+  --ap-surface: #161617;
+  --ap-surface-2: #1d1d1f;
+  --ap-text: #f5f5f7;
+  --ap-text-muted: #a1a1a6;
+  --ap-accent: #0071e3;
+  --ap-accent-text: #ffffff;
+  --ap-line: rgb(255 255 255 / 0.12);
+  --ap-warn: #ff9f0a;
+  --ap-danger: #ff453a;
+  --ap-ok: #30d158;
+  --ap-nav-bg: rgb(22 22 23 / 0.8);
+  --ap-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", var(--font-vazirmatn), "Vazirmatn", system-ui, sans-serif;
+  --ap-hero-size: clamp(2.5rem, 7vw, 5rem);
+  --ap-hero-weight: 600;
+  --ap-hero-tracking: -0.015em;
+  --ap-body-size: 17px;
+  --ap-body-leading: 1.47;
+  --ap-section-pad: 120px;
+  --ap-section-pad-sm: 56px;
+  --ap-radius-card: 18px;
+  --ap-radius-pill: 980px;
+  --ap-nav-h: 44px;
+  /* Shell tokens (chat + header). Edit here to restyle them from a reference image. */
+  --ap-touch: 44px;
+  --ap-radius-input: 14px;
+  --ap-link: #2997ff;
+  --ap-hover: rgb(255 255 255 / 0.08);
+  --ap-accent-soft: rgb(0 113 227 / 0.18);
+  --ap-menu-bg: #232326;
+  --ap-menu-shadow: 0 12px 40px rgb(0 0 0 / 0.5);
+  --ap-header-h: 56px;
+  --ap-content-max: 880px;
+  --ap-gap: 16px;
+  --ap-small-size: 14px;
+  --ap-tiny-size: 12px;
+  background: var(--ap-bg);
+  color: var(--ap-text);
+  font-family: var(--ap-font);
+  font-size: var(--ap-body-size);
+  line-height: var(--ap-body-leading);
+}
+@media (prefers-color-scheme: light) {
+  .ap-theme:not([data-theme="dark"]) {
+    --ap-bg: #ffffff;
+    --ap-surface: #f5f5f7;
+    --ap-surface-2: #ececf0;
+    --ap-text: #1d1d1f;
+    --ap-text-muted: #6e6e73;
+    --ap-line: rgb(0 0 0 / 0.12);
+    --ap-nav-bg: rgb(255 255 255 / 0.8);
+    --ap-warn: #b25000;
+    --ap-danger: #d70015;
+    --ap-ok: #248a3d;
+    --ap-link: #0066cc;
+    --ap-hover: rgb(0 0 0 / 0.06);
+    --ap-accent-soft: rgb(0 113 227 / 0.12);
+    --ap-menu-bg: #ffffff;
+    --ap-menu-shadow: 0 12px 40px rgb(0 0 0 / 0.16);
+  }
+}
+.ap-theme[data-theme="light"] {
+  --ap-bg: #ffffff;
+  --ap-surface: #f5f5f7;
+  --ap-surface-2: #ececf0;
+  --ap-text: #1d1d1f;
+  --ap-text-muted: #6e6e73;
+  --ap-line: rgb(0 0 0 / 0.12);
+  --ap-nav-bg: rgb(255 255 255 / 0.8);
+  --ap-warn: #b25000;
+  --ap-danger: #d70015;
+  --ap-ok: #248a3d;
+  --ap-link: #0066cc;
+  --ap-hover: rgb(0 0 0 / 0.06);
+  --ap-accent-soft: rgb(0 113 227 / 0.12);
+  --ap-menu-bg: #ffffff;
+  --ap-menu-shadow: 0 12px 40px rgb(0 0 0 / 0.16);
+}
+.ap-theme .ap-hero {
+  font-size: var(--ap-hero-size);
+  font-weight: var(--ap-hero-weight);
+  letter-spacing: var(--ap-hero-tracking);
+  line-height: 1.1;
+}
+.ap-theme .ap-section { padding-block: var(--ap-section-pad-sm); }
+@media (min-width: 1024px) { .ap-theme .ap-section { padding-block: var(--ap-section-pad); } }
+.ap-theme .ap-nav {
+  height: var(--ap-nav-h);
+  background: var(--ap-nav-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+.ap-theme .ap-card { background: var(--ap-surface); border-radius: var(--ap-radius-card); padding: 24px; }
+.ap-theme .ap-muted { color: var(--ap-text-muted); }
+.ap-theme .ap-input {
+  width: 100%; min-height: 44px; padding: 10px 14px;
+  background: var(--ap-surface-2); color: var(--ap-text);
+  border: 1px solid transparent; border-radius: 12px; font: inherit;
+}
+.ap-theme .ap-input[aria-invalid="true"] { border-color: var(--ap-danger); }
+.ap-theme .ap-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 22px; border-radius: var(--ap-radius-pill);
+  background: var(--ap-accent); color: var(--ap-accent-text); font: inherit; font-weight: 500; cursor: pointer;
+  border: 1px solid transparent;
+}
+.ap-theme .ap-btn-ghost { background: transparent; color: var(--ap-accent); border-color: var(--ap-accent); }
+.ap-theme .ap-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ap-theme :is(.ap-btn, .ap-input, a, button, select, textarea):focus-visible {
+  outline: 2px solid var(--ap-accent); outline-offset: 2px;
+}
+
+/* ---- Shell components (header, chat). Tokens only; no hard-coded colours. ---- */
+.ap-theme { min-width: 0; }
+.ap-theme.ap-header {
+  position: sticky; top: 0; z-index: 40; width: 100%;
+  background: var(--ap-nav-bg); border-bottom: 1px solid var(--ap-line);
+  -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+  font-size: var(--ap-small-size); line-height: 1.5;
+}
+.ap-theme .ap-header-row {
+  max-width: 1152px; margin-inline: auto; padding-inline: 16px;
+  min-height: var(--ap-header-h); display: flex; align-items: center; gap: 12px;
+}
+.ap-theme .ap-brand { display: flex; align-items: center; gap: 10px; min-height: var(--ap-touch); border-radius: var(--ap-radius-input); color: var(--ap-text); font-weight: 600; text-decoration: none; }
+.ap-theme .ap-brand-mark { width: 36px; height: 36px; border-radius: 50%; background: var(--ap-surface-2); display: inline-flex; align-items: center; justify-content: center; color: var(--ap-link); flex-shrink: 0; }
+.ap-theme .ap-nav-list { display: none; align-items: center; gap: 4px; margin-inline-start: 12px; flex: 1; min-width: 0; }
+@media (min-width: 1024px) { .ap-theme .ap-nav-list { display: flex; } .ap-theme .ap-only-mobile { display: none !important; } }
+@media (max-width: 1023px) { .ap-theme .ap-only-desktop { display: none !important; } }
+.ap-theme .ap-header-end { margin-inline-start: auto; display: flex; align-items: center; gap: 8px; }
+.ap-theme .ap-navlink {
+  display: inline-flex; align-items: center; gap: 6px; min-height: var(--ap-touch); padding: 0 14px;
+  border-radius: var(--ap-radius-pill); border: 0; background: transparent; color: var(--ap-text-muted);
+  font: inherit; font-size: var(--ap-small-size); cursor: pointer; text-decoration: none; white-space: nowrap;
+}
+.ap-theme .ap-navlink:hover { color: var(--ap-text); background: var(--ap-hover); }
+.ap-theme .ap-navlink[aria-current="page"], .ap-theme .ap-navlink[aria-expanded="true"] { color: var(--ap-text); background: var(--ap-surface-2); }
+.ap-theme .ap-iconbtn {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: var(--ap-touch); height: var(--ap-touch); border-radius: 50%; cursor: pointer;
+  background: var(--ap-surface-2); color: var(--ap-text); border: 1px solid transparent;
+}
+.ap-theme .ap-iconbtn:hover { background: var(--ap-hover); }
+.ap-theme .ap-iconbtn[data-active="true"] { background: var(--ap-danger); color: #fff; }
+.ap-theme .ap-iconbtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ap-theme .ap-dropdown { position: relative; }
+.ap-theme .ap-menu {
+  position: absolute; top: calc(100% + 8px); inset-inline-start: 0; z-index: 50; min-width: 240px; max-width: calc(100vw - 32px);
+  padding: 8px; border-radius: var(--ap-radius-card); background: var(--ap-menu-bg);
+  border: 1px solid var(--ap-line); box-shadow: var(--ap-menu-shadow);
+}
+.ap-theme .ap-menu[data-align="end"] { inset-inline-start: auto; inset-inline-end: 0; }
+.ap-theme .ap-menu-label { padding: 8px 12px 4px; font-size: var(--ap-tiny-size); color: var(--ap-text-muted); }
+.ap-theme .ap-menu-sep { height: 1px; margin: 6px 4px; background: var(--ap-line); }
+.ap-theme .ap-menuitem {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: var(--ap-touch); padding: 0 12px;
+  border-radius: 12px; border: 0; background: transparent; color: var(--ap-text); font: inherit;
+  font-size: var(--ap-small-size); text-align: start; cursor: pointer; text-decoration: none;
+}
+.ap-theme .ap-menuitem:hover, .ap-theme .ap-menuitem[aria-current="page"] { background: var(--ap-hover); }
+.ap-theme .ap-menuitem[data-danger="true"] { color: var(--ap-danger); }
+.ap-theme .ap-mobile-panel { border-top: 1px solid var(--ap-line); background: var(--ap-menu-bg); padding: 12px 16px 16px; max-height: calc(100vh - var(--ap-header-h)); overflow-y: auto; }
+.ap-theme .ap-chip {
+  display: inline-flex; align-items: center; gap: 8px; min-height: var(--ap-touch); padding: 0 16px; flex-shrink: 0;
+  border-radius: var(--ap-radius-pill); background: var(--ap-surface-2); color: var(--ap-text);
+  border: 1px solid var(--ap-line); font: inherit; font-size: var(--ap-small-size); white-space: nowrap; cursor: pointer; text-decoration: none;
+}
+.ap-theme .ap-chip:hover { background: var(--ap-hover); }
+.ap-theme .ap-chip-link { color: var(--ap-link); border-color: var(--ap-link); background: transparent; }
+.ap-theme .ap-chip-icon { color: var(--ap-link); }
+.ap-theme .ap-chip-row { display: flex; align-items: center; gap: 8px; overflow-x: auto; padding-block: 2px; scrollbar-width: none; }
+.ap-theme .ap-chip-row::-webkit-scrollbar { display: none; }
+.ap-theme .ap-group-title { margin: 0 0 8px; font-size: var(--ap-tiny-size); font-weight: 600; color: var(--ap-text-muted); }
+.ap-theme .ap-starter-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media (min-width: 640px) { .ap-theme .ap-starter-grid { grid-template-columns: 1fr 1fr; } }
+.ap-theme .ap-starter {
+  display: block; width: 100%; min-height: var(--ap-touch); padding: 14px 16px; text-align: start; cursor: pointer;
+  background: var(--ap-surface); color: var(--ap-text); border: 1px solid var(--ap-line);
+  border-radius: var(--ap-radius-card); font: inherit; font-size: var(--ap-small-size); line-height: 1.7;
+}
+.ap-theme .ap-starter:hover { background: var(--ap-surface-2); }
+.ap-theme .ap-bubble {
+  max-width: min(92%, 640px); padding: 14px 18px; border-radius: var(--ap-radius-card);
+  font-size: 15px; line-height: 1.9; overflow-wrap: anywhere;
+}
+.ap-theme .ap-bubble-user { background: var(--ap-accent); color: var(--ap-accent-text); }
+.ap-theme .ap-bubble-ai { background: var(--ap-surface); color: var(--ap-text); border: 1px solid var(--ap-line); }
+.ap-theme .ap-composer {
+  display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: var(--ap-radius-card);
+  background: var(--ap-surface); border: 1px solid var(--ap-line);
+}
+.ap-theme .ap-composer:focus-within { outline: 2px solid var(--ap-accent); outline-offset: 2px; }
+.ap-theme .ap-composer input {
+  flex: 1; min-width: 0; min-height: var(--ap-touch); padding: 0 12px; background: transparent;
+  border: 0; outline: none; color: var(--ap-text); font: inherit; font-size: 16px;
+}
+.ap-theme .ap-composer input::placeholder { color: var(--ap-text-muted); }
+.ap-theme .ap-disclaimer {
+  display: flex; align-items: flex-start; gap: 8px; padding: 10px 14px; border-radius: var(--ap-radius-input);
+  background: var(--ap-accent-soft); color: var(--ap-text); font-size: var(--ap-tiny-size); line-height: 1.7;
+}
+.ap-theme .ap-notice { font-size: var(--ap-tiny-size); line-height: 1.7; color: var(--ap-text-muted); }
+.ap-theme .ap-notice-warn { color: var(--ap-warn); }
+.ap-theme .ap-link { color: var(--ap-link); text-decoration: none; }
+.ap-theme .ap-link:hover { text-decoration: underline; }
+@media (prefers-reduced-motion: reduce) { .ap-theme * { transition: none !important; animation: none !important; } }
+
+@media print {
+  .ap-theme .no-print { display: none !important; }
+  .ap-theme { background: #fff; color: #000; }
+  .ap-theme .ap-card { background: #fff; border: 1px solid #999; }
+}

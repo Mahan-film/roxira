@@ -1,0 +1,207 @@
+#!/bin/zsh
+# rx <issue> [model, including team] [base-branch] — do a GitHub issue with a worker, then open a PR.
+# Network calls to GitHub are retried (this Mac's connection drops HTTP2/graphql calls).
+# Exit codes: 0 PR opened, 1 no changes from any model, 2 usage, 3 ruff gate failed.
+set -eu
+retry()     { local i; for i in 1 2 3 4 5 6; do "$@" && return 0; sleep 5; done; return 1; }
+retry_out() { local i out; for i in 1 2 3 4 5 6; do out=$("$@" 2>/dev/null) && { print -r -- "$out"; return 0; }; sleep 5; done; return 1; }
+
+rx_enable_auto_merge() {
+  rx_pr_number="$1"
+
+  if [ "${RX_AUTOMERGE:-1}" = "0" ]; then
+    return 0
+  fi
+
+  rx_sensitive_path=""
+  rx_changed_files="$(command gh pr diff "$rx_pr_number" --name-only)" || {
+    printf 'warning: could not inspect PR %s for sensitive paths; auto-merge not enabled\n' "$rx_pr_number" >&2
+    return 0
+  }
+
+  while IFS= read -r rx_changed_file; do
+    case "$rx_changed_file" in
+      .github/*|scripts/ops/*|ops/*|config/models.yaml|docker-compose*.yml|nginx|nginx.conf|nginx/*|migrations/*|docker/*|*.sql|src/factory_pipeline/budget.py|.semgrep/*|output_apps/nginx_config/*|output_apps/ecosystem_core/src/billing/*|output_apps/ecosystem_core/src/auth/*|output_apps/generated_modules/smartjudge/smartjudge_module.py|output_apps/generated_modules/smartjudge/payment_service.py|Dockerfile.prod)
+        rx_sensitive_path="$rx_changed_file"
+        break
+        ;;
+    esac
+  done <<EOF
+$rx_changed_files
+EOF
+
+  if [ -n "$rx_sensitive_path" ]; then
+    printf 'needs hub review (sensitive path: %s)\n' "$rx_sensitive_path"
+    return 0
+  fi
+
+  rx_merge_out="$(command gh pr merge "$rx_pr_number" --auto --squash 2>&1)" && rx_merge_status=0 || rx_merge_status=$?
+  printf '%s\n' "$rx_merge_out"
+  if [ "$rx_merge_status" -eq 0 ]; then
+    printf 'auto-merge enabled\n'
+  elif printf '%s\n' "$rx_merge_out" | grep -qi 'clean status'; then
+    printf 'already clean; merge manually\n'
+  else
+    printf 'warning: could not enable auto-merge for PR %s\n' "$rx_pr_number" >&2
+  fi
+}
+
+gh() {
+  if [ "$1" = "pr" ] && [ "$2" = "create" ]; then
+    rx_gh_output="$(command gh "$@")"
+    rx_gh_status=$?
+    printf '%s\n' "$rx_gh_output"
+
+    if [ "$rx_gh_status" -eq 0 ] && [ "${RX_AUTOMERGE:-1}" != "0" ]; then
+      rx_pr_number="$(printf '%s\n' "$rx_gh_output" | sed -n 's#.*/pull/\([0-9][0-9]*\).*#\1#p' | head -n 1)"
+      if [ -n "$rx_pr_number" ]; then
+        rx_enable_auto_merge "$rx_pr_number"
+      else
+        printf 'warning: could not determine the newly created PR number; auto-merge not enabled\n' >&2
+      fi
+    fi
+
+    return "$rx_gh_status"
+  fi
+
+  command gh "$@"
+}
+
+[ $# -ge 1 ] || { echo "usage: rx <issue> [model] [base-branch]"; exit 2; }
+n=$1; model=${2:-codex}; base=${3:-main}
+timeout_secs=${RX_TIMEOUT_SECS:-900}
+repo=~/Developer/roxira-platform; wt=~/Developer/rx-wt/$n; br=issue-$n
+mkdir -p ~/rx-logs; log=~/rx-logs/$n.log; : > "$log"
+retry git -C $repo -c http.version=HTTP/1.1 fetch -q origin
+[ -d $wt ] && git -C $repo worktree remove --force $wt
+git -C $repo worktree prune
+git -C $repo worktree add -q -B $br $wt origin/$base
+cd $wt
+title=$(retry_out gh issue view $n --repo Mahan-film/roxira-platform --json title -q .title)
+body=$(retry_out gh issue view $n --repo Mahan-film/roxira-platform --json body -q .body)
+
+# Size guard: warn only.
+if [ ${#body} -gt 6000 ] || ! print -r -- "$body" | grep -Eq '/[^[:space:]/]*\.[A-Za-z0-9]+'; then
+  echo "rx: WARNING issue may be too large/unspecific for the cheap lane"
+fi
+
+prompt="You are in a git worktree of Mahan-film/roxira-platform. Task = GitHub issue #$n: $title
+
+$body
+
+Rules: edit only files this task needs; never run pytest on src/ or the repo root; never write secrets; model ids only in config/models.yaml; do NOT run git or gh (the wrapper commits). Do not start subagents. Do not read data files under data/. Do not call a shell/bash tool (it does not exist). Before you finish, re-read every file you wrote and check every name you use is imported or defined. Write the code with your edit/write tools now; do not only describe it. Stop when the change is complete."
+
+# Fallback chain: start from the given model, then the following ones (max 2 attempts).
+chain=(codex dsflash dspro codestral)
+if (( ${chain[(Ie)$model]} )); then
+  models=(${chain[${chain[(Ie)$model]},-1]})
+else
+  models=($model codex)
+fi
+models=(${models[1,2]})
+
+used=""
+for m in $models; do
+  if [ "$m" = codex ]; then
+    if ! command -v codex >/dev/null 2>&1; then
+      echo "rx: codex command not installed; skipping"
+      continue
+    fi
+    worker=codex
+  else
+    worker=pool/$m
+  fi
+  echo "rx: #$n trying $worker"
+  echo "==== rx attempt: $worker ====" >> "$log"
+  rc=0
+  timeout_marker=${TMPDIR:-/tmp}/rx-timeout-$$-$m
+  rm -f "$timeout_marker"
+  if [ "$m" = codex ]; then
+    codex exec --sandbox workspace-write "$prompt" < /dev/null >> "$log" 2>&1 &
+  elif [[ "$m" == "team" ]]; then
+    worker=omniroute/team-coding
+    (
+      if [[ -f ~/.config/omniroute.env ]]; then
+        set -a; . ~/.config/omniroute.env; set +a
+      fi
+      opencode run -m omniroute/team-coding "$prompt" < /dev/null >> "$log" 2>&1
+    ) &
+  else
+    opencode run -m pool/$m "$prompt" < /dev/null >> "$log" 2>&1 &
+  fi
+  worker_pid=$!
+  (
+    sleep "$timeout_secs"
+    if kill -0 "$worker_pid" 2>/dev/null; then
+      print -r -- timed_out > "$timeout_marker"
+      kill "$worker_pid" 2>/dev/null || true
+    fi
+  ) &
+  timer_pid=$!
+  wait "$worker_pid" || rc=$?
+  kill "$timer_pid" 2>/dev/null || true
+  wait "$timer_pid" 2>/dev/null || true
+  if [ -f "$timeout_marker" ]; then
+    echo "rx: $m timed out after ${timeout_secs}s"
+    rc=124
+  fi
+  rm -f "$timeout_marker"
+  [ $rc -ne 0 ] && echo "rx: $worker exited $rc (see $log)"
+  if [ $rc -eq 0 ] && [ -n "$(git status --porcelain)" ]; then used=$m; break; fi
+  [ -n "$(git status --porcelain)" ] && used=$m
+  echo "rx: $worker gave no usable result"
+done
+echo "---- rx #$n summary (full log: $log) ----"; tail -n 10 "$log" | cut -c1-170
+if [ -z "$(git status --porcelain)" ]; then echo "rx: no changes for #$n"; exit 1; fi
+if [ "$used" = codex ]; then worker=codex; else worker=pool/$used; fi
+echo "rx: result produced by $worker"
+model=$used
+
+git add -A
+# Pre-PR gate: catch undefined names / redefinitions / syntax errors in changed Python files.
+pyfiles=(${(f)"$(git diff --cached --name-only --diff-filter=ACMR -- '*.py')"})
+if [ ${#pyfiles} -gt 0 ]; then
+  if python3 -m ruff --version >/dev/null 2>&1; then
+    if ! ruff_out=$(python3 -m ruff check --select F821,F811,E9 $pyfiles 2>&1); then
+      if [ -z "${RX_REPAIR:-}" ] || [ "${RX_REPAIR:-}" != "0" ]; then
+        echo "$ruff_out" | tee -a "$log"
+        echo "rx: ruff gate failed for #$n; attempting repair round"
+        repair_prompt="$prompt\n\nYour previous change failed this lint check. Fix ONLY these errors; an undefined name means a missing import or a typo. Re-read every file you changed and make sure every name is imported or defined.\n\n$(echo "$ruff_out" | head -n 60)"
+        if [ "$model" = codex ]; then
+          codex exec --sandbox workspace-write "$repair_prompt" < /dev/null >> "$log" 2>&1
+        elif [[ "$model" == "team" ]]; then
+          (
+            if [[ -f ~/.config/omniroute.env ]]; then
+              set -a; . ~/.config/omniroute.env; set +a
+            fi
+            opencode run -m omniroute/team-coding "$repair_prompt" < /dev/null >> "$log" 2>&1
+          )
+        else
+          opencode run -m pool/$model "$repair_prompt" < /dev/null >> "$log" 2>&1
+        fi
+        if [ -n "$(git status --porcelain)" ]; then
+          if ! ruff_out=$(python3 -m ruff check --select F821,F811,E9 $pyfiles 2>&1); then
+            echo "$ruff_out" | tee -a "$log"
+            echo "rx: ruff gate failed after repair for #$n; not committing, no PR"
+            exit 3
+          fi
+        else
+          echo "rx: no changes after repair for #$n; not committing, no PR"
+          exit 3
+        fi
+      else
+        echo "$ruff_out" | tee -a "$log"
+        echo "rx: ruff gate failed for #$n; not committing, no PR"
+        exit 3
+      fi
+    fi
+  else
+    echo "rx: ruff not installed, skipping gate"
+  fi
+fi
+
+git commit -q -m "$title (closes #$n)"
+retry git -c http.version=HTTP/1.1 push -q -u origin $br
+retry gh pr create --repo Mahan-film/roxira-platform --base main --head $br --title "$title" --body "Closes #$n
+
+Implemented by OpenCode (pool/$model) via rx."
